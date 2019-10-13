@@ -1,90 +1,79 @@
 package propra.imageconverter;
 
+import propra.imageconverter.exceptions.ImageConverterIllegalArgumentException;
 import propra.imageconverter.handler.ArgumentHandler;
+import propra.imageconverter.images.Image;
+import propra.imageconverter.images.ProPraImage;
+import propra.imageconverter.images.TGAImage;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
+/**
+ * ImageConverter is a Program, that can be used to convert images between TGA and ProPra format.
+ */
 public class ImageConverter {
 
     public static void main(String[] args) {
-
-        int h = 13;
-        int w = 14;
-        int d = 3;
-
-//        for (int i = 0; i < h; i++)
-//            for (int j = 0; j < w; j++)
-//                for (int k = 0; k < d; k++)
-//                    System.out.println(String.format("%d;%d;%d", i, j, k));
-
-        ArgumentHandler argHandler = new ArgumentHandler(args);
-
-        if (argHandler.getInFileExtension().equals(argHandler.getOutFileExtension())) {
-            copyFile(argHandler);
-        } else {
-            convertFile(argHandler);
+        try {
+            ArgumentHandler argHandler = new ArgumentHandler(args);
+            if (argHandler.getInFileExtension().equals(argHandler.getOutFileExtension())) {
+                copyFile(argHandler);
+            } else {
+                convertFile(argHandler);
+            }
+        } catch (ImageConverterIllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            System.exit(123);
         }
     }
 
-
+    /**
+     * Copies the passed input file into the specified output file.
+     *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
+     */
     public static void copyFile(ArgumentHandler argHandler) {
         File inFile = new File(argHandler.getInFile());
         File outFile = new File(argHandler.getOutFile());
-        FileInputStream fis = null;
-        FileOutputStream fos = null;
-        int buffer;
 
-        // Verify Infile
-        if (!inFile.isFile()) {
-            System.out.println("Please check your input file. The file does either not exist, or is no file.");
-            System.exit(1337);
-        } else if (!inFile.canRead()) {
-            System.out.println("Please check your input file. The file is not readable.");
-            System.exit(1337);
-        }
+        System.out.println(String.format("Copy File %s -> %s", inFile.getAbsolutePath(), outFile.getAbsolutePath()));
 
-        // Create (if necessary) path to outfile
-        if (!outFile.getParentFile().exists()) {
-            outFile.getParentFile().mkdirs();
-        }
-
-        // Copy File
         try {
-            fis = new FileInputStream(inFile);
-            fos = new FileOutputStream(outFile);
-
-            while ((buffer = fis.read()) != -1) {
-                fos.write(buffer);
-            }
-
-        } catch (FileNotFoundException e) {
-            // Should not happen due to previous checks
-            e.printStackTrace();
+            Files.copy(inFile.toPath(), outFile.toPath());
         } catch (IOException e) {
-            System.exit(1337);
-            // TODO Joa da muss noch n bisschen, wa?
-            e.printStackTrace();
-        } finally {
-            try {
-                if (fis != null) {
-                    fis.close();
-                }
-
-                if (fos != null) {
-                    fos.close();
-                }
-            } catch (IOException e) {
-                System.exit(1337);
-                e.printStackTrace();
-            }
+            System.err.println("Unexpected error occurred during copy process:\n" + e.toString());
+            System.exit(123);
         }
+
+        System.out.println("Copied file successfully");
     }
 
+    /**
+     * Convert file from either TGA format to ProPra or vice versa.
+     *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
+     */
     public static void convertFile(ArgumentHandler argHandler) {
-        Image img = argHandler.getInFileExtension().equals("tga") ? new TGAImage(argHandler.getInFile())
-                : new ProPraImage(argHandler.getInFile());
+        System.out.println(String.format("Convert File %s -> %s", argHandler.getInFile(), argHandler.getOutFile()));
 
-        Image converted = img.convert();
-        converted.save(argHandler.getOutFile());
+        // In ArgumentHandler we verified the files, that they can only be in propra or tga format. Therefore we can
+        // say for sure, that if the extension is not tga, it must be propra.
+        try {
+            Image img = argHandler.getInFileExtension().equals("tga") ? new TGAImage(argHandler.getInFile())
+                    : new ProPraImage(argHandler.getInFile());
+
+            System.out.println("Loaded image into memory. Start conversion now.");
+            Image converted = img.convert();
+
+            System.out.println("Save image to output file.");
+            converted.save(argHandler.getOutFile());
+        } catch (Exception e) {
+            System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
+            System.exit(123);
+        }
+
+        System.out.println("Conversion finished successfully");
     }
 }
