@@ -139,7 +139,7 @@ public abstract class Image {
         File inFile = new File(filePath);
         FileInputStream fis = null;
         byte[] fileHeader = new byte[this.getHeaderSize()];
-        byte[] pixel = new byte[3];
+        byte[] pixel;
         byte[][][] imgData;
         int x = 0;
         int y = 0;
@@ -157,19 +157,13 @@ public abstract class Image {
                 throw new InvalidImageException(message);
             }
 
-            // Verify consistency of image
-            if (this.getImgWidth() == 0) {
-                throw new InvalidImageException("Invalid image dimensions. Width of 0 is not allowed.");
-            } else if (this.getImgHeight() == 0) {
-                throw new InvalidImageException("Invalid image dimensions. Height of 0 is not allowed.");
-            } else
+            // Init imgData based on image size from file header.
+            imgData = new byte[this.getImgHeight()][this.getImgWidth()][this.getPixelDepth() / 8];
+            pixel = new byte[this.getPixelDepth() / 8];
 
-                // Init imgData based on image size from file header.
-                imgData = new byte[this.getImgHeight()][this.getImgWidth()][3];
-
-            while ((amountRead = fis.read(pixel)) == 3 && y < this.getImgHeight()) {
+            while ((amountRead = fis.read(pixel)) == (this.getPixelDepth() / 8) && y < this.getImgHeight()) {
                 imgData[y][x] = pixel;
-                pixel = new byte[3];
+                pixel = new byte[this.getPixelDepth() / 8];
 
                 if (++x == this.getImgWidth()) {
                     y++;

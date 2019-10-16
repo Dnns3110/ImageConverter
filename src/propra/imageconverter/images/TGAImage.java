@@ -125,12 +125,18 @@ public class TGAImage extends Image {
         this.setImgDescriptor(fileHeader[0x11]);
 
         // Validate Header.
-        if (imageIDLength != 0) {
-            throw new InvalidImageException("Unsupported image ID length used: Supported: 0, found: " + imageType);
+        if (this.getImgWidth() == 0) {
+            throw new InvalidImageException("Invalid image dimensions. Width of 0 is not allowed.");
+        } else if (this.getImgHeight() == 0) {
+            throw new InvalidImageException("Invalid image dimensions. Height of 0 is not allowed.");
+        } else if (imageIDLength != 0) {
+            throw new InvalidImageException(String.format("Unsupported image ID length used: Supported: 0, found: %d.", imageType));
         } else if (imageType != 2) {
-            throw new InvalidImageException("Unsupported image type used: Supported: 2, found: " + imageType);
+            throw new InvalidImageException(String.format("Unsupported image type used: Supported: 2, found: %d.", imageType));
         } else if (this.getImgDescriptor() != 0x20 || this.getxOrigin() != 0 || this.getyOrigin() != this.getImgHeight()) {
             throw new InvalidImageException("Origin of image has to be at the top left corner.");
+        } else if (this.getPixelDepth() != 24) {
+            throw new InvalidImageException(String.format("Unsupported pixel depth. Supported: 3, found: %d.", this.getPixelDepth()));
         }
     }
 

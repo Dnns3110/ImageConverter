@@ -145,11 +145,18 @@ public class ProPraImage extends Image {
         this.setDataSegmentSize(ByteHandler.byteArrayToLong(fileHeader, 0x10));
         this.setCheckSum(ByteHandler.byteArrayToInt(fileHeader, 0x18));
 
+        // Validate Header.
         long dataSegmentSize = this.getImgHeight() * this.getImgWidth() * (this.getPixelDepth() / 8);
-        if (this.getDataSegmentSize() != dataSegmentSize) {
+        if (this.getImgWidth() == 0) {
+            throw new InvalidImageException("Invalid image dimensions. Width of 0 is not allowed.");
+        } else if (this.getImgHeight() == 0) {
+            throw new InvalidImageException("Invalid image dimensions. Height of 0 is not allowed.");
+        } else if (this.getDataSegmentSize() != dataSegmentSize) {
             throw new InvalidImageException("Read data segment size does not match height, width and pixel depth.");
         } else if (this.getCompressionType() != 0) {
             throw new InvalidImageException("Unsupported compression type used: Supported: 0, found: " + this.getCompressionType());
+        } else if (this.getPixelDepth() != 24) {
+            throw new InvalidImageException(String.format("Unsupported pixel depth. Supported: 3, found: %d.", this.getPixelDepth()));
         }
 
     }

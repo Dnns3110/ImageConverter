@@ -7,8 +7,6 @@ import propra.imageconverter.images.ProPraImage;
 import propra.imageconverter.images.TGAImage;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 
 /**
  * ImageConverter is a Program, that can be used to convert images between TGA and ProPra format.
@@ -40,10 +38,17 @@ public class ImageConverter {
 
         System.out.println(String.format("Copy File %s -> %s", inFile.getAbsolutePath(), outFile.getAbsolutePath()));
 
+        // In ArgumentHandler we verified the files, that they can only be in propra or tga format. Therefore we can
+        // say for sure, that if the extension is not tga, it must be propra.
         try {
-            Files.copy(inFile.toPath(), outFile.toPath());
-        } catch (IOException e) {
-            System.err.println("Unexpected error occurred during copy process:\n" + e.toString());
+            System.out.println("Load image into memory.");
+            Image img = argHandler.getInFileExtension().equals("tga") ? new TGAImage(argHandler.getInFile())
+                    : new ProPraImage(argHandler.getInFile());
+
+            System.out.println("Save image to output file.");
+            img.save(argHandler.getOutFile());
+        } catch (Exception e) {
+            System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
             System.exit(123);
         }
 
@@ -61,10 +66,11 @@ public class ImageConverter {
         // In ArgumentHandler we verified the files, that they can only be in propra or tga format. Therefore we can
         // say for sure, that if the extension is not tga, it must be propra.
         try {
+            System.out.println("Load image into memory.");
             Image img = argHandler.getInFileExtension().equals("tga") ? new TGAImage(argHandler.getInFile())
                     : new ProPraImage(argHandler.getInFile());
 
-            System.out.println("Loaded image into memory. Start conversion now.");
+            System.out.println("Convert image.");
             Image converted = img.convert();
 
             System.out.println("Save image to output file.");
