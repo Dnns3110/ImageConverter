@@ -115,7 +115,7 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <main role="main">
     <div class="header">
-        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">propra.imageconverter.images</a>
+        <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">propra.imageconverter.imageheader</a>
         </div>
         <h2 class="title" title="Class TGAImage">Class TGAImage</h2>
     </div>
@@ -124,11 +124,11 @@ loadScripts(document, 'script');</script>
             <li>java.lang.Object</li>
             <li>
                 <ul class="inheritance">
-                    <li><a href="Image.html" title="class in propra.imageconverter.images">propra.imageconverter.images.Image</a>
+                    <li><a href="Image.html" title="class in propra.imageconverter.imageheader">propra.imageconverter.imageheader.ImageHeader</a>
                     </li>
                     <li>
                         <ul class="inheritance">
-                            <li>propra.imageconverter.images.TGAImage</li>
+                            <li>propra.imageconverter.imageheader.TGAImageHeader</li>
                         </ul>
                     </li>
                 </ul>
@@ -139,7 +139,7 @@ loadScripts(document, 'script');</script>
                 <li class="blockList">
                     <hr>
                     <pre>public class <span class="typeNameLabel">TGAImage</span>
-extends <a href="Image.html" title="class in propra.imageconverter.images">Image</a></pre>
+extends <a href="Image.html" title="class in propra.imageconverter.imageheader">Image</a></pre>
                     <div class="block">Image in TGA Format</div>
                 </li>
             </ul>
@@ -249,7 +249,7 @@ extends <a href="Image.html" title="class in propra.imageconverter.images">Image
                                     </tr>
                                     <tr class="altColor" id="i0">
                                         <td class="colFirst"><code><a href="Image.html"
-                                                                      title="class in propra.imageconverter.images">Image</a></code>
+                                                                      title="class in propra.imageconverter.imageheader">Image</a></code>
                                         </td>
                                         <th class="colSecond" scope="row"><code><span class="memberNameLink"><a
                                                 href="#convert()">convert</a></span>()</code></th>
@@ -340,9 +340,9 @@ extends <a href="Image.html" title="class in propra.imageconverter.images">Image
                                             id="methods.inherited.from.class.propra.imageconverter.images.Image">
                                         <!--   -->
                                     </a>
-                                        <h3>Methods inherited from class&nbsp;propra.imageconverter.images.<a
+                                        <h3>Methods inherited from class&nbsp;propra.imageconverter.imageheader.<a
                                                 href="Image.html"
-                                                title="class in propra.imageconverter.images">Image</a></h3>
+                                                title="class in propra.imageconverter.imageheader">Image</a></h3>
                                         <code><a href="Image.html#allowOptionalData()">allowOptionalData</a>, <a
                                                 href="Image.html#getImgData()">getImgData</a>, <a
                                                 href="Image.html#getImgHeight()">getImgHeight</a>, <a
@@ -578,7 +578,7 @@ extends <a href="Image.html" title="class in propra.imageconverter.images">Image
                                             <dd><code><a
                                                     href="Image.html#handleHeader(byte%5B%5D)">handleHeader</a></code>&nbsp;in
                                                 class&nbsp;<code><a href="Image.html"
-                                                                    title="class in propra.imageconverter.images">Image</a></code>
+                                                                    title="class in propra.imageconverter.imageheader">Image</a></code>
                                             </dd>
                                             <dt><span class="paramLabel">Parameters:</span></dt>
                                             <dd><code>fileHeader</code> - file header from image file to be processed.
@@ -603,7 +603,7 @@ extends <a href="Image.html" title="class in propra.imageconverter.images">Image
                                             <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
                                             <dd><code><a href="Image.html#getHeader()">getHeader</a></code>&nbsp;in
                                                 class&nbsp;<code><a href="Image.html"
-                                                                    title="class in propra.imageconverter.images">Image</a></code>
+                                                                    title="class in propra.imageconverter.imageheader">Image</a></code>
                                             </dd>
                                             <dt><span class="returnLabel">Returns:</span></dt>
                                             <dd>image file header.</dd>
@@ -622,7 +622,7 @@ extends <a href="Image.html" title="class in propra.imageconverter.images">Image
                                             <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
                                             <dd><code><a href="Image.html#getHeaderSize()">getHeaderSize</a></code>&nbsp;in
                                                 class&nbsp;<code><a href="Image.html"
-                                                                    title="class in propra.imageconverter.images">Image</a></code>
+                                                                    title="class in propra.imageconverter.imageheader">Image</a></code>
                                             </dd>
                                             <dt><span class="returnLabel">Returns:</span></dt>
                                             <dd>size of header in byte.</dd>
@@ -636,12 +636,13 @@ extends <a href="Image.html" title="class in propra.imageconverter.images">Image
                                     <li class="blockList">
                                         <h4>convert</h4>
                                         <pre class="methodSignature">public&nbsp;<a href="Image.html"
-                                                                                    title="class in propra.imageconverter.images">Image</a>&nbsp;convert()</pre>
+                                                                                    title="class in propra.imageconverter.imageheader">Image</a>&nbsp;convert()</pre>
                                         <div class="block">Returns a converted Image.</div>
                                         <dl>
                                             <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
                                             <dd><code><a href="Image.html#convert()">convert</a></code>&nbsp;in class&nbsp;<code><a
-                                                    href="Image.html" title="class in propra.imageconverter.images">Image</a></code>
+                                                    href="Image.html"
+                                                    title="class in propra.imageconverter.imageheader">Image</a></code>
                                             </dd>
                                             <dt><span class="returnLabel">Returns:</span></dt>
                                             <dd>converted image.</dd>

@@ -600,7 +600,7 @@ th.colFirst a:link, th.colFirst a:visited,
 th.colSecond a:link, th.colSecond a:visited,
 th.colConstructorName a:link, th.colConstructorName a:visited,
 th.colDeprecatedItemName a:link, th.colDeprecatedItemName a:visited,
-.constantValuesContainer td a:link, .constantValuesContainer td a:visited,
+.constantValuesContainer td a:link, .constantValuesContainer td a:visited, 
 .allClassesContainer td a:link, .allClassesContainer td a:visited, 
 .allPackagesContainer td a:link, .allPackagesContainer td a:visited {
     font-weight: bold;

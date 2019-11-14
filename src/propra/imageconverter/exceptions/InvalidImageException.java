@@ -5,7 +5,7 @@ package propra.imageconverter.exceptions;
  */
 public class InvalidImageException extends Exception {
     /**
-     * Constructs an ImageConverterIllegalArgumentException with the specified detail message.
+     * Constructs an InvalidImageException with the specified detail message.
      *
      * @param message the detail message.
      */
