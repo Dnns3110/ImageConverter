@@ -6,9 +6,10 @@ import propra.imageconverter.handler.ByteHandler;
 import propra.imageconverter.imageheader.ImageHeader;
 import propra.imageconverter.imageheader.ProPraImageHeader;
 import propra.imageconverter.imageheader.TGAImageHeader;
-import propra.imageconverter.reader.ImageReader;
-import propra.imageconverter.reader.ProPraReader;
-import propra.imageconverter.reader.TGAReader;
+import propra.imageconverter.readerwriter.ImageReader;
+import propra.imageconverter.readerwriter.ImageWriter;
+import propra.imageconverter.readerwriter.ProPraReader;
+import propra.imageconverter.readerwriter.TGAReader;
 
 import java.io.*;
 import java.util.Arrays;
@@ -19,9 +20,9 @@ import java.util.Arrays;
 public class ImageConverter {
 
     public static void main(String[] args) {
-        ArgumentHandler argHandler = null;
         try {
-            argHandler = new ArgumentHandler(args);
+            ArgumentHandler argHandler = new ArgumentHandler(args);
+
             if (argHandler.getWorkMode() == WorkMode.Encode) {
                 encodeFile(argHandler);
             } else if (argHandler.getWorkMode() == WorkMode.Decode) {
@@ -33,8 +34,6 @@ public class ImageConverter {
             System.err.println(e.getMessage());
             System.exit(123);
         }
-
-
     }
 
     /**
@@ -46,10 +45,11 @@ public class ImageConverter {
         System.out.println(String.format("Convert File %s -> %s", argHandler.getInFile(), argHandler.getOutFile()));
         ImageHeader inputHeader = null;
         ImageHeader outputHeader = null;
-        Checksum checksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
+        Checksum inputChecksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
+        Checksum outputChecksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
 
         try (ImageReader reader = getReader(argHandler);
-             BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream(argHandler.getOutFile()))) {
+             ImageWriter writer = new ImageWriter(new FileOutputStream(argHandler.getOutFile()))) {
 
             System.out.println("Read/Write file header.");
             inputHeader = reader.readHeader();
@@ -58,14 +58,11 @@ public class ImageConverter {
 
             System.out.println("Convert image.");
             for (long i = 0; i < inputHeader.getImgHeight(); i++) {
-                Pixel[] pixels = reader.readRow(inputHeader);
+                Pixel[] pixels = reader.readRow(inputHeader, inputChecksum);
 
                 if (pixels != null) {
-                    for (Pixel pixel : pixels) {
-                        byte[] convertedPixel = pixel.getPixel(outputHeader.getPixelOrder());
-                        writer.write(convertedPixel);
-                        checksum.add(pixel);
-                    }
+                    writer.writeRow(pixels, outputHeader, outputChecksum);
+                    System.out.println("....");
                 } else {
                     throw new InvalidImageException("Less image data to read, than expected.");
                 }
@@ -80,7 +77,7 @@ public class ImageConverter {
 
             // Validate Checksum of ProPra image.
             if (inputHeader instanceof ProPraImageHeader) {
-                ((ProPraImageHeader) inputHeader).validateChecksum(checksum);
+                ((ProPraImageHeader) inputHeader).validateChecksum(inputChecksum);
             }
 
             writer.flush();
@@ -93,7 +90,7 @@ public class ImageConverter {
         // If we have a ProPra Image as output, we need to update the calculated checksum.
         if (outputHeader instanceof ProPraImageHeader) {
             try {
-                updateChecksum(argHandler.getOutFile(), checksum);
+                updateChecksum(argHandler.getOutFile(), outputChecksum);
             } catch (InvalidImageException e) {
                 System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
                 System.exit(123);

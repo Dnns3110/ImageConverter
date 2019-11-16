@@ -16,6 +16,12 @@ public class TGAImageHeader extends ImageHeader {
     public static PixelOrder PIXEL_ORDER = PixelOrder.BGR;
 
     /**
+     * Image type field from image file header.
+     */
+    private byte imageType;
+
+
+    /**
      * X Origin field from image file header.
      */
     private short xOrigin;
@@ -48,6 +54,7 @@ public class TGAImageHeader extends ImageHeader {
                           byte pixelDepth, byte imgDescriptor, Compression compression) throws InvalidImageException {
         super(imgWidth, imgHeight, pixelDepth, compression);
 
+        this.imageType = imageType;
         this.xOrigin = xOrigin;
         this.yOrigin = yOrigin;
         this.imgDescriptor = imgDescriptor;
@@ -93,7 +100,7 @@ public class TGAImageHeader extends ImageHeader {
         ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE);
 
         // First 8 Bytes of TGA Header are fixed values in our case.
-        buf.put(new byte[]{0x0, 0x0, 0x2, 0x0, 0x0, 0x0, 0x0, 0x0});
+        buf.put(new byte[]{0x0, 0x0, this.imageType, 0x0, 0x0, 0x0, 0x0, 0x0});
         buf.put(ByteHandler.shortToByteArray(this.getxOrigin()));
         buf.put(ByteHandler.shortToByteArray(this.getyOrigin()));
         buf.put(ByteHandler.shortToByteArray(this.getImgWidth()));

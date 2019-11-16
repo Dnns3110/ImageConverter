@@ -22,11 +22,6 @@ public class ProPraImageHeader extends ImageHeader {
     private String magic;
 
     /**
-     * Compression type field from image file header.
-     */
-    private byte compressionType;
-
-    /**
      * Data segment size field from image file header.
      */
     private long dataSegmentSize;
@@ -59,10 +54,6 @@ public class ProPraImageHeader extends ImageHeader {
 
         if (!magic.equals("ProPraWS19")) {
             throw new InvalidImageException("Loaded ProPra Image does not start with String \"ProPraWS19\"");
-        } else if (dataSegmentSize != imgHeight * imgWidth * (pixelDepth / 8)) {
-            throw new InvalidImageException("Read data segment size does not match height, width and pixel depth.");
-        } else if (compressionType != 0) {
-            throw new InvalidImageException("Unsupported compression type used: Supported: 0, found: " + compressionType);
         }
     }
 
@@ -73,15 +64,6 @@ public class ProPraImageHeader extends ImageHeader {
      */
     public String getMagic() {
         return magic;
-    }
-
-    /**
-     * Returns compression type field from image file header.
-     *
-     * @return compressionType.
-     */
-    public byte getCompressionType() {
-        return compressionType;
     }
 
     /**
@@ -115,7 +97,7 @@ public class ProPraImageHeader extends ImageHeader {
         buf.put(ByteHandler.shortToByteArray(this.getImgWidth()));
         buf.put(ByteHandler.shortToByteArray(this.getImgHeight()));
         buf.put(this.getPixelDepth());
-        buf.put(this.getCompressionType());
+        buf.put((byte) (this.getCompression() == Compression.Uncompressed ? 0 : 1));
         buf.put(ByteHandler.longToByteArray(this.getDataSegmentSize()));
         buf.put(ByteHandler.intToByteArray(this.getChecksum()));
 

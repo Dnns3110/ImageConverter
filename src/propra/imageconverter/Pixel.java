@@ -44,4 +44,14 @@ public class Pixel {
                 ", b=" + b +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Pixel) {
+            Pixel other = (Pixel) obj;
+            return this.r == other.r && this.g == other.g && this.b == other.b;
+        }
+
+        return false;
+    }
 }

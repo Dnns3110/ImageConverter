@@ -22,11 +22,15 @@ public class Checksum {
         this.add(pixel.getPixel(this.pixelOrder));
     }
 
+    public void add(byte b1) {
+        a += this.i + Byte.toUnsignedInt(b1);
+        b = (b + a % X) % X;
+        this.i++;
+    }
+
     public void add(byte[] bytes) {
         for (int j = 0; j < bytes.length; j++) {
-            a += this.i + Byte.toUnsignedInt(bytes[j]);
-            b = (b + a % X) % X;
-            this.i++;
+            this.add(bytes[j]);
         }
     }
 

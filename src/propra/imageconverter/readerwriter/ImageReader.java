@@ -1,5 +1,6 @@
-package propra.imageconverter.reader;
+package propra.imageconverter.readerwriter;
 
+import propra.imageconverter.Checksum;
 import propra.imageconverter.Compression;
 import propra.imageconverter.Pixel;
 import propra.imageconverter.PixelOrder;
@@ -38,35 +39,23 @@ public abstract class ImageReader extends BufferedInputStream {
         return parseHeader(fileHeader);
     }
 
-    public Pixel readPixel(byte pixelDepth) throws IOException {
-        int bytesToRead = pixelDepth / 8;
-        byte[] pixelData = new byte[bytesToRead];
-        long numBytesRead = this.read(pixelData);
-        this.numBytesRead += numBytesRead;
-
-        if (numBytesRead == bytesToRead) {
-            return new Pixel(pixelData, this.getPixelOrder());
-        }
-
-        return null;
-    }
-
-    public Pixel[] readRow(ImageHeader header) throws IOException {
+    public Pixel[] readRow(ImageHeader header, Checksum checksum) throws IOException {
         if (header.getCompression() == Compression.Uncompressed) {
-            return readUncompressedRow(header);
+            return readUncompressedRow(header, checksum);
         } else if (header.getCompression() == Compression.RLE) {
-            return readRLERow(header);
+            return readRLERow(header, checksum);
         }
 
         return null;
     }
 
-    private Pixel[] readUncompressedRow(ImageHeader header) throws IOException {
+    private Pixel[] readUncompressedRow(ImageHeader header, Checksum checksum) throws IOException {
         int bytesPerPixel = header.getPixelDepth() / 8;
         int bytesToRead = header.getImgWidth() * bytesPerPixel;
         byte[] readBytes = new byte[bytesToRead];
         Pixel[] row = new Pixel[header.getImgWidth()];
         int numBytesRead = this.read(readBytes);
+        checksum.add(readBytes);
 
 
         if (numBytesRead == bytesToRead) {
@@ -82,10 +71,46 @@ public abstract class ImageReader extends BufferedInputStream {
         return null;
     }
 
-    private Pixel[] readRLERow(ImageHeader header) throws IOException {
-        Pixel[] row = new Pixel[header.getImgWidth()];
+    private Pixel[] readRLERow(ImageHeader header, Checksum checksum) throws IOException {
+        int pixelsToRead = header.getImgWidth();
+        Pixel[] row = new Pixel[pixelsToRead];
+        int bytesPerPixel = header.getPixelDepth() / 8;
+        int numPixelsRead = 0;
 
-        return null;
+        while (numPixelsRead < pixelsToRead) {
+            int controlByte = this.read();
+            boolean isRaw = (controlByte & 0x80) == 0;
+            int numPixels = (controlByte & 0x7F) + 1;
+            int bytesToRead = isRaw ? numPixels * bytesPerPixel : bytesPerPixel;
+            byte[] readBytes = new byte[bytesToRead];
+            int numBytesRead = this.read(readBytes);
+            this.numBytesRead += numBytesRead + 1;
+
+            checksum.add((byte) controlByte);
+            checksum.add(readBytes);
+
+            if (numBytesRead == readBytes.length) {
+                if (isRaw) {
+                    for (int i = 0; i < numPixels; i++) {
+                        byte[] pixel = Arrays.copyOfRange(readBytes, i * bytesPerPixel, i * bytesPerPixel + bytesPerPixel);
+                        row[numPixelsRead + i] = new Pixel(pixel, this.getPixelOrder());
+                    }
+                } else {
+                    Pixel pixel = new Pixel(readBytes, this.getPixelOrder());
+                    for (int i = 0; i < numPixels; i++) {
+                        row[numPixelsRead + i] = pixel;
+                    }
+                }
+
+
+                numPixelsRead += numPixels;
+            } else {
+                return null;
+            }
+
+        }
+
+        return row;
     }
 
     protected abstract PixelOrder getPixelOrder();

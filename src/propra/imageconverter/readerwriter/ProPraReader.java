@@ -1,4 +1,4 @@
-package propra.imageconverter.reader;
+package propra.imageconverter.readerwriter;
 
 import propra.imageconverter.Compression;
 import propra.imageconverter.PixelOrder;
