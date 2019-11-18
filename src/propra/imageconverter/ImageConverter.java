@@ -2,7 +2,6 @@ package propra.imageconverter;
 
 import propra.imageconverter.exceptions.InvalidImageException;
 import propra.imageconverter.handler.ArgumentHandler;
-import propra.imageconverter.handler.ByteHandler;
 import propra.imageconverter.imageheader.ImageHeader;
 import propra.imageconverter.imageheader.ProPraImageHeader;
 import propra.imageconverter.imageheader.TGAImageHeader;
@@ -37,7 +36,7 @@ public class ImageConverter {
     }
 
     /**
-     * Convert file from either TGA format to ProPra or vice versa.
+     * Convert file from either TGA format to ProPra or vice versa. Can handle uncompressed of rle compressed files.
      *
      * @param argHandler ArgumentHandler, that contains both paths to input and output file.
      */
@@ -47,6 +46,7 @@ public class ImageConverter {
         ImageHeader outputHeader = null;
         Checksum inputChecksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
         Checksum outputChecksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
+        long outputDataSegmentSize = 0;
 
         try (ImageReader reader = getReader(argHandler);
              ImageWriter writer = new ImageWriter(new FileOutputStream(argHandler.getOutFile()))) {
@@ -62,7 +62,6 @@ public class ImageConverter {
 
                 if (pixels != null) {
                     writer.writeRow(pixels, outputHeader, outputChecksum);
-                    System.out.println("....");
                 } else {
                     throw new InvalidImageException("Less image data to read, than expected.");
                 }
@@ -77,29 +76,29 @@ public class ImageConverter {
 
             // Validate Checksum of ProPra image.
             if (inputHeader instanceof ProPraImageHeader) {
-                ((ProPraImageHeader) inputHeader).validateChecksum(inputChecksum);
+                ((ProPraImageHeader) inputHeader).reValidateHeader(inputChecksum, reader.getDataSegmentSize());
             }
 
+            outputDataSegmentSize = writer.getDataSegmentSize();
             writer.flush();
         } catch (Exception e) {
-            e.printStackTrace();
             System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
             System.exit(123);
         }
 
         // If we have a ProPra Image as output, we need to update the calculated checksum.
         if (outputHeader instanceof ProPraImageHeader) {
-            try {
-                updateChecksum(argHandler.getOutFile(), outputChecksum);
-            } catch (InvalidImageException e) {
-                System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
-                System.exit(123);
-            }
+            ((ProPraImageHeader) outputHeader).updateHeader(argHandler.getOutFile(), outputChecksum, outputDataSegmentSize);
         }
 
         System.out.println("Conversion finished successfully");
     }
 
+    /**
+     * Encodes the specified file. Encoding is based on the arguments.
+     *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
+     */
     public static void encodeFile(ArgumentHandler argHandler) {
         BaseN encoder = argHandler.getEncoder();
         int maxInputBytes = encoder.maxInputBytes();
@@ -133,6 +132,11 @@ public class ImageConverter {
         System.out.println("Encoding finished successfully");
     }
 
+    /**
+     * Decodes the specified file. Decoding is based on the arguments.
+     *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
+     */
     public static void decodeFile(ArgumentHandler argHandler) {
         BaseN encoder = argHandler.getEncoder();
         int maxInputCharacters = encoder.maxInputCharacters();
@@ -166,15 +170,30 @@ public class ImageConverter {
         System.out.println("Decoding finished successfully");
     }
 
+    /**
+     * Returns the suitable reader for the input file format.
+     * This application can (at the moment) only handle tga or propra images. And as we verified in ArgumentHandler, that
+     * the input is either one of those formats, we know, that if the input file is not in tga format, it has to be in propra format instead.
+     *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
+     * @return suitable reader.
+     * @throws FileNotFoundException if the input file does not exist.
+     */
     private static ImageReader getReader(ArgumentHandler argHandler) throws FileNotFoundException {
-        // This application can (at the moment) only handle tga or propra images. And as we verified in ArgumentHandler, that
-        // the input is either one of those formats, we know, that if the input file is not in tga format, it has to be in propra format instead.
         if (argHandler.getInFileExtension().equals("tga"))
             return new TGAReader(new FileInputStream(argHandler.getInFile()));
 
         return new ProPraReader(new FileInputStream(argHandler.getInFile()));
     }
 
+    /**
+     * converts the read header into the suitable output header.
+     *
+     * @param inputHeader header from input file.
+     * @param argHandler  ArgumentHandler, that contains both paths to input and output file.
+     * @return output header.
+     * @throws InvalidImageException if constructed output header is invalid.
+     */
     private static ImageHeader convertHeader(ImageHeader inputHeader, ArgumentHandler argHandler) throws InvalidImageException {
         short imgWidth = inputHeader.getImgWidth();
         short imgHeight = inputHeader.getImgHeight();
@@ -196,17 +215,6 @@ public class ImageConverter {
             int checksum = 0;
 
             return new ProPraImageHeader(magic, imgWidth, imgHeight, pixelDepth, compression, dataSegmentSize, checksum);
-        }
-    }
-
-    private static void updateChecksum(File outFile, Checksum checksum) throws InvalidImageException {
-
-        try (RandomAccessFile raf = new RandomAccessFile(outFile, "rw")) {
-            long checksumPos = 24;
-            raf.seek(checksumPos);
-            raf.write(ByteHandler.intToByteArray(checksum.getChecksum()));
-        } catch (IOException e) {
-            throw new InvalidImageException(e.toString());
         }
     }
 }

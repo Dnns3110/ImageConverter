@@ -9,17 +9,40 @@ import propra.imageconverter.imageheader.ProPraImageHeader;
 
 import java.io.InputStream;
 
+/**
+ * Class to read a ProPra image from specified input file.
+ */
 public class ProPraReader extends ImageReader {
 
+    /**
+     * Creates a <code>ProPraReader</code>
+     * and saves its  argument, the input stream
+     * <code>in</code>, for later use. An internal
+     * buffer array is created and  stored in <code>buf</code>.
+     *
+     * @param in the underlying input stream.
+     */
     public ProPraReader(InputStream in) {
         super(in);
     }
 
+    /**
+     * Returns Pixel order of the image format.
+     *
+     * @return pixel order
+     */
     @Override
     protected PixelOrder getPixelOrder() {
         return ProPraImageHeader.PIXEL_ORDER;
     }
 
+    /**
+     * Parses read bytes into the corresponding fields of the image header
+     *
+     * @param header read bytes from input file
+     * @return created header from read bytes
+     * @throws InvalidImageException if header is invalid
+     */
     @Override
     protected ImageHeader parseHeader(byte[] header) throws InvalidImageException {
         String magic = new String(header, 0, 10);

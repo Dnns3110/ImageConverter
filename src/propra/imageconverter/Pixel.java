@@ -1,10 +1,20 @@
 package propra.imageconverter;
 
+/**
+ * Represents a pixel.
+ */
 public class Pixel {
+
     private byte r;
     private byte g;
     private byte b;
 
+    /**
+     * Constructs a pixel from a given byte array, based on the given pixel order.
+     *
+     * @param pixel      bytes that represent the pixel.
+     * @param pixelOrder order of the colors.
+     */
     public Pixel(byte[] pixel, PixelOrder pixelOrder) {
         switch (pixelOrder) {
             case BGR:
@@ -25,6 +35,11 @@ public class Pixel {
         }
     }
 
+    /**
+     * Returns the pixel as byte array in a specified pixel order.
+     * @param pixelOrder order of the colors in the byte array.
+     * @return bytes representing pixel.
+     */
     public byte[] getPixel(PixelOrder pixelOrder) {
         switch (pixelOrder) {
             case BGR:
@@ -36,15 +51,11 @@ public class Pixel {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Pixel{" +
-                "r=" + r +
-                ", g=" + g +
-                ", b=" + b +
-                '}';
-    }
-
+    /**
+     * Compares this pixel to an object.
+     * @param obj object to be compared to.
+     * @return true, if r, g and b value of the given object is equal to the values of this pixel.
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Pixel) {

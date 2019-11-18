@@ -6,6 +6,9 @@ import propra.imageconverter.PixelOrder;
 import propra.imageconverter.exceptions.InvalidImageException;
 import propra.imageconverter.handler.ByteHandler;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 /**
@@ -104,6 +107,11 @@ public class ProPraImageHeader extends ImageHeader {
         return buf.array();
     }
 
+    /**
+     * Returns pixel order for ProPra image file.
+     *
+     * @return PixelOrder.GBR.
+     */
     @Override
     public PixelOrder getPixelOrder() {
         return PIXEL_ORDER;
@@ -115,10 +123,33 @@ public class ProPraImageHeader extends ImageHeader {
      * @param checksum calculated checksum, that should get verified against the checksum in header.
      * @throws InvalidImageException if the calculated checksum mismachts the checksum from header.
      */
-    public void validateChecksum(Checksum checksum) throws InvalidImageException {
+    public void reValidateHeader(Checksum checksum, long dataSegmentSize) throws InvalidImageException {
         if (this.getChecksum() != checksum.getChecksum()) {
             throw new InvalidImageException(String.format("Mismatch between read checksum(0x%08X) and " +
                     "calculated checksum(%s). Please verify.", this.getChecksum(), checksum));
+        } else if (this.getDataSegmentSize() != dataSegmentSize) {
+            throw new InvalidImageException(String.format("Mismatch between read data segment size (0x%016X) and " +
+                    "actually read data segment size(0x%016X). Please verify.", this.getDataSegmentSize(), dataSegmentSize));
+        }
+    }
+
+    /**
+     * Updates header written in file, based on calculated values during write process.
+     *
+     * @param outFile         converted output file.
+     * @param checksum        calculated checksum while writing to output file.
+     * @param dataSegmentSize counted bytes while writing to output file.
+     */
+    public void updateHeader(File outFile, Checksum checksum, long dataSegmentSize) {
+
+        try (RandomAccessFile raf = new RandomAccessFile(outFile, "rw")) {
+            long dataSegmentSizePos = 0x10;
+            raf.seek(dataSegmentSizePos);
+            raf.write(ByteHandler.longToByteArray(dataSegmentSize));
+            raf.write(ByteHandler.intToByteArray(checksum.getChecksum()));
+        } catch (IOException e) {
+            System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
+            System.exit(123);
         }
     }
 }

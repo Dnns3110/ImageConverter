@@ -141,6 +141,11 @@ public abstract class ImageHeader {
      */
     public abstract byte[] toByteArray();
 
+    /**
+     * Return pixel order for the actual image format. Can currently be BGR or GBR.
+     *
+     * @return pixel order for image format.
+     */
     public abstract PixelOrder getPixelOrder();
 
 }

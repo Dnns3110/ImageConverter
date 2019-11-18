@@ -95,6 +95,11 @@ public class TGAImageHeader extends ImageHeader {
         return imgDescriptor;
     }
 
+    /**
+     * Returns header as byte array to be written into a file.
+     *
+     * @return this header as byte array.
+     */
     @Override
     public byte[] toByteArray() {
         ByteBuffer buf = ByteBuffer.allocate(HEADER_SIZE);
@@ -111,6 +116,11 @@ public class TGAImageHeader extends ImageHeader {
         return buf.array();
     }
 
+    /**
+     * Returns pixel order for ProPra image file.
+     *
+     * @return PixelOrder.BGR.
+     */
     @Override
     public PixelOrder getPixelOrder() {
         return PIXEL_ORDER;
