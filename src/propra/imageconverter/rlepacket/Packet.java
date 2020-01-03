@@ -1,7 +1,7 @@
 package propra.imageconverter.rlepacket;
 
-import propra.imageconverter.Pixel;
-import propra.imageconverter.PixelOrder;
+import propra.imageconverter.image.Pixel;
+import propra.imageconverter.image.PixelOrder;
 
 /**
  * A packet, used for RLE Compression.

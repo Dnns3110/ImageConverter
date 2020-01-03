@@ -1,7 +1,7 @@
 package propra.imageconverter.rlepacket;
 
-import propra.imageconverter.Pixel;
-import propra.imageconverter.PixelOrder;
+import propra.imageconverter.image.Pixel;
+import propra.imageconverter.image.PixelOrder;
 
 import java.nio.ByteBuffer;
 

@@ -1,6 +1,6 @@
 propra.imageconverter
 propra.imageconverter.exceptions
 propra.imageconverter.handler
-propra.imageconverter.imageheader
-propra.imageconverter.readerwriter
+propra.imageconverter.image
+propra.imageconverter.io
 propra.imageconverter.writer

@@ -2,13 +2,11 @@ package propra.imageconverter;
 
 import propra.imageconverter.exceptions.InvalidImageException;
 import propra.imageconverter.handler.ArgumentHandler;
-import propra.imageconverter.imageheader.ImageHeader;
-import propra.imageconverter.imageheader.ProPraImageHeader;
-import propra.imageconverter.imageheader.TGAImageHeader;
-import propra.imageconverter.readerwriter.ImageReader;
-import propra.imageconverter.readerwriter.ImageWriter;
-import propra.imageconverter.readerwriter.ProPraReader;
-import propra.imageconverter.readerwriter.TGAReader;
+import propra.imageconverter.image.*;
+import propra.imageconverter.io.ImageReader;
+import propra.imageconverter.io.ImageWriter;
+import propra.imageconverter.io.ProPraReader;
+import propra.imageconverter.io.TGAReader;
 
 import java.io.*;
 import java.util.Arrays;
@@ -80,7 +78,6 @@ public class ImageConverter {
             }
 
             outputDataSegmentSize = writer.getDataSegmentSize();
-            writer.flush();
         } catch (Exception e) {
             System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
             System.exit(123);
@@ -179,7 +176,7 @@ public class ImageConverter {
      * @return suitable reader.
      * @throws FileNotFoundException if the input file does not exist.
      */
-    private static ImageReader getReader(ArgumentHandler argHandler) throws FileNotFoundException {
+    private static ImageReader getReader(ArgumentHandler argHandler) throws IOException {
         if (argHandler.getInFileExtension().equals("tga"))
             return new TGAReader(new FileInputStream(argHandler.getInFile()));
 
