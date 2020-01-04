@@ -116,6 +116,7 @@ public class ArgumentHandler {
     public String getUsage() {
         return "Usage: \tImageConverter --input=<Path to input file> --output=<Path to output file> --compression=rle\n" +
                 "  or \tImageConverter --input=<Path to input file> --output=<Path to output file> --compression=uncompressed\n" +
+                "  or \tImageConverter --input=<Path to input file> --output=<Path to output file in *.propra format> --compression=huffman\n" +
                 "  or \tImageConverter --input=<Path to input file> --encode-base-32\n" +
                 "  or \tImageConverter --input=<Path to input file> --decode-base-32\n" +
                 "  or \tImageConverter --input=<Path to input file> --encode-base-n=<Alphabet>\n" +
@@ -253,13 +254,19 @@ public class ArgumentHandler {
         if (this.workMode != null) {
             getWorkModeError(WorkMode.ConvertRLE, arg);
         } else if (splittedArgument.length == 2) {
-            if (splittedArgument[1].equals("rle")) {
-                this.workMode = WorkMode.ConvertRLE;
-            } else if (splittedArgument[1].equals("uncompressed")) {
-                this.workMode = WorkMode.ConvertUncompressed;
-            } else {
-                String message = String.format("Unsupported compression used: %s\n%s", arg, this.getUsage());
-                throw new IllegalArgumentException(message);
+            switch (splittedArgument[1]) {
+                case "rle":
+                    this.workMode = WorkMode.ConvertRLE;
+                    break;
+                case "uncompressed":
+                    this.workMode = WorkMode.ConvertUncompressed;
+                    break;
+                case "huffman":
+                    this.workMode = WorkMode.ConvertHuffman;
+                    break;
+                default:
+                    String message = String.format("Unsupported compression used: %s\n%s", arg, this.getUsage());
+                    throw new IllegalArgumentException(message);
             }
         } else {
             String message = String.format("Wrong use of argument %s: %s\n%s",
@@ -318,6 +325,7 @@ public class ArgumentHandler {
         switch (this.workMode) {
             case ConvertRLE:
             case ConvertUncompressed:
+            case ConvertHuffman:
                 if (this.inFile == null) {
                     String message = String.format("No input file specified.\n%s", this.getUsage());
                     throw new IllegalArgumentException(message);
@@ -330,6 +338,9 @@ public class ArgumentHandler {
                         throw new IllegalArgumentException(message);
                     } else if (!this.getOutFileExtension().matches("(tga|propra)")) {
                         String message = String.format("Unsupported file format for output. Only *.tga and *.propra are supported.\nGiven format: %s", this.getOutFileExtension());
+                        throw new IllegalArgumentException(message);
+                    } else if (this.workMode == WorkMode.ConvertHuffman && !this.getOutFileExtension().equals("propra")) {
+                        String message = String.format("Unsupported file format for output when using huffman compression. Only *.propra is supported.\nGiven format: %s", this.getOutFileExtension());
                         throw new IllegalArgumentException(message);
                     }
                 }

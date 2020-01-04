@@ -31,6 +31,15 @@ public class ImageWriter extends BufferedOutputStream {
         return dataSegmentSize;
     }
 
+    /**
+     * Increments dataSegmentSize by given increment.
+     *
+     * @param increment number of bytes to be added to dataSegmentSize.
+     */
+    public void incrementDataSegmentSize(long increment) {
+        this.dataSegmentSize += increment;
+    }
+
 
     /**
      * Writes a row of pixels into the output file in uncompressed or rle compressed format.

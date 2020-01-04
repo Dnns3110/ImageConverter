@@ -2,12 +2,12 @@ package propra.imageconverter.image;
 
 import propra.imageconverter.exceptions.InvalidImageException;
 import propra.imageconverter.handler.ByteHandler;
-import propra.imageconverter.huffman.Node;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 /**
  * Image header in ProPra Format.
@@ -35,7 +35,9 @@ public class ProPraImageHeader extends ImageHeader {
     /**
      * Huffman Tree.
      */
-    private Node huffmanTree = new Node();
+    private Node huffmanTree;
+
+    private HashMap<Byte, String> huffmanTable;
 
     /**
      * Constructs a ProPra image with xOrigin, yOrigin, width, height, pixelDepth, image descriptor and pixel data of
@@ -51,12 +53,13 @@ public class ProPraImageHeader extends ImageHeader {
      * @throws InvalidImageException if image header is invalid.
      */
     public ProPraImageHeader(String magic, short imgWidth, short imgHeight, byte pixelDepth, Compression compression,
-                             long dataSegmentSize, int checksum) throws InvalidImageException {
+                             long dataSegmentSize, int checksum, Node tree) throws InvalidImageException {
         super(imgWidth, imgHeight, pixelDepth, compression);
 
         this.magic = magic;
         this.dataSegmentSize = dataSegmentSize;
         this.checksum = checksum;
+        this.huffmanTree = tree == null ? new Node() : tree;
 
         if (!magic.equals("ProPraWS19")) {
             throw new InvalidImageException("Loaded ProPra Image does not start with String \"ProPraWS19\"");
@@ -98,6 +101,14 @@ public class ProPraImageHeader extends ImageHeader {
      */
     public Node getHuffmanTree() {
         return huffmanTree;
+    }
+
+    public HashMap<Byte, String> getHuffmanTable() {
+        return huffmanTable;
+    }
+
+    public void setHuffmanTable(HashMap<Byte, String> huffmanTable) {
+        this.huffmanTable = huffmanTable;
     }
 
     /**

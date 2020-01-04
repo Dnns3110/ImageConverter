@@ -2,7 +2,6 @@ package propra.imageconverter.io;
 
 import propra.imageconverter.exceptions.InvalidImageException;
 import propra.imageconverter.handler.ByteHandler;
-import propra.imageconverter.huffman.Node;
 import propra.imageconverter.image.*;
 
 import java.io.IOException;
@@ -63,7 +62,7 @@ public class ProPraReader extends ImageReader {
             compression = Compression.Huffman;
         }
 
-        return new ProPraImageHeader(magic, imgWidth, imgHeight, pixelDepth, compression, dataSegmentSize, checksum);
+        return new ProPraImageHeader(magic, imgWidth, imgHeight, pixelDepth, compression, dataSegmentSize, checksum, null);
     }
 
     /**

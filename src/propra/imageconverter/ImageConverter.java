@@ -3,13 +3,12 @@ package propra.imageconverter;
 import propra.imageconverter.exceptions.InvalidImageException;
 import propra.imageconverter.handler.ArgumentHandler;
 import propra.imageconverter.image.*;
-import propra.imageconverter.io.ImageReader;
-import propra.imageconverter.io.ImageWriter;
-import propra.imageconverter.io.ProPraReader;
-import propra.imageconverter.io.TGAReader;
+import propra.imageconverter.io.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * ImageConverter is a Program, that can be used to convert images between TGA and ProPra format.
@@ -45,13 +44,18 @@ public class ImageConverter {
         Checksum inputChecksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
         Checksum outputChecksum = new Checksum(ProPraImageHeader.PIXEL_ORDER);
         long outputDataSegmentSize = 0;
+        Node tree = null;
+
+        if (argHandler.getWorkMode() == WorkMode.ConvertHuffman) {
+            tree = buildTree(argHandler);
+        }
 
         try (ImageReader reader = getReader(argHandler);
-             ImageWriter writer = new ImageWriter(new FileOutputStream(argHandler.getOutFile()))) {
+             ImageWriter writer = getWriter(argHandler)) {
 
             System.out.println("Read/Write file header.");
             inputHeader = reader.readHeader();
-            outputHeader = convertHeader(inputHeader, argHandler);
+            outputHeader = convertHeader(inputHeader, argHandler, tree);
             writer.write(outputHeader.toByteArray());
 
             System.out.println("Convert image.");
@@ -62,6 +66,13 @@ public class ImageConverter {
                     writer.writeRow(pixels, outputHeader, outputChecksum);
                 } else {
                     throw new InvalidImageException("Less image data to read, than expected.");
+                }
+            }
+
+            // Write rest of String buffer for huffman compression.
+            if (writer instanceof ProPraWriter) {
+                if (outputHeader.getCompression() == Compression.Huffman) {
+                    ((ProPraWriter) writer).flush(outputChecksum);
                 }
             }
 
@@ -168,6 +179,56 @@ public class ImageConverter {
     }
 
     /**
+     * Reads the input File once to build the huffman tree.
+     *
+     * @return huffman tree.
+     */
+    public static Node buildTree(ArgumentHandler argHandler) {
+        int[] byteCount = new int[256];
+
+        try (ImageReader reader = getReader(argHandler)) {
+            ImageHeader inputHeader = reader.readHeader();
+            Checksum chk = new Checksum();
+
+            for (long i = 0; i < inputHeader.getImgHeight(); i++) {
+                Pixel[] pixels = reader.readRow(inputHeader, chk);
+                for (Pixel pixel : pixels) {
+                    for (byte b : pixel.getPixel(inputHeader.getPixelOrder())) {
+                        byteCount[Byte.toUnsignedInt(b)]++;
+                    }
+                }
+            }
+        } catch (IOException | InvalidImageException e) {
+            e.printStackTrace();
+        }
+
+        ArrayList<Node> nodeList = byteCountToNodeList(byteCount);
+//        ArrayList<Node> nodeList = new ArrayList<>();
+//
+//        nodeList.add(new Node((byte)42, 1337));
+//        nodeList.add(new Node((byte)5, 26));
+//        nodeList.add(new Node((byte)6, 30));
+//        nodeList.add(new Node((byte)2, 24));
+//        nodeList.add(new Node((byte)16, 23));
+//        nodeList.add(new Node((byte)23, 42));
+//        nodeList.add(new Node((byte)10, 15));
+//        nodeList.add(new Node((byte)7, 10));
+//        nodeList.add(new Node((byte)8, 12));
+
+
+        while (nodeList.size() > 1) {
+            Collections.sort(nodeList);
+
+            Node newNode = new Node(nodeList.get(0), nodeList.get(1));
+            nodeList.remove(1);
+            nodeList.remove(0);
+            nodeList.add(newNode);
+        }
+
+        return nodeList.get(0);
+    }
+
+    /**
      * Returns the suitable reader for the input file format.
      * This application can (at the moment) only handle tga or propra images. And as we verified in ArgumentHandler, that
      * the input is either one of those formats, we know, that if the input file is not in tga format, it has to be in propra format instead.
@@ -184,6 +245,22 @@ public class ImageConverter {
     }
 
     /**
+     * Returns the suitable writer for the input file format.
+     * This application can (at the moment) only handle tga or propra images. And as we verified in ArgumentHandler, that
+     * the input is either one of those formats, we know, that if the input file is not in tga format, it has to be in propra format instead.
+     *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
+     * @return suitable writer.
+     * @throws FileNotFoundException if the input file does not exist.
+     */
+    private static ImageWriter getWriter(ArgumentHandler argHandler) throws IOException {
+        if (argHandler.getOutFileExtension().equals("propra"))
+            return new ProPraWriter(new FileOutputStream(argHandler.getOutFile()));
+
+        return new ImageWriter(new FileOutputStream(argHandler.getOutFile()));
+    }
+
+    /**
      * converts the read header into the suitable output header.
      *
      * @param inputHeader header from input file.
@@ -191,11 +268,21 @@ public class ImageConverter {
      * @return output header.
      * @throws InvalidImageException if constructed output header is invalid.
      */
-    private static ImageHeader convertHeader(ImageHeader inputHeader, ArgumentHandler argHandler) throws InvalidImageException {
+    private static ImageHeader convertHeader(ImageHeader inputHeader, ArgumentHandler argHandler, Node tree) throws InvalidImageException {
         short imgWidth = inputHeader.getImgWidth();
         short imgHeight = inputHeader.getImgHeight();
         byte pixelDepth = inputHeader.getPixelDepth();
-        Compression compression = argHandler.getWorkMode() == WorkMode.ConvertRLE ? Compression.RLE : Compression.Uncompressed;
+        Compression compression;
+        switch (argHandler.getWorkMode()) {
+            case ConvertRLE:
+                compression = Compression.RLE;
+                break;
+            case ConvertHuffman:
+                compression = Compression.Huffman;
+                break;
+            default:
+                compression = Compression.Uncompressed;
+        }
 
         if (argHandler.getOutFileExtension().equals("tga")) {
             byte imageIDLength = 0;
@@ -211,7 +298,19 @@ public class ImageConverter {
             // Checksum will be 0 first, as we cannot set the real checksum, before all pixels are read
             int checksum = 0;
 
-            return new ProPraImageHeader(magic, imgWidth, imgHeight, pixelDepth, compression, dataSegmentSize, checksum);
+            return new ProPraImageHeader(magic, imgWidth, imgHeight, pixelDepth, compression, dataSegmentSize, checksum, tree);
         }
+    }
+
+    public static ArrayList<Node> byteCountToNodeList(int[] byteCount) {
+        ArrayList<Node> list = new ArrayList<>();
+
+        for (int i = 0; i < byteCount.length; i++) {
+            if (byteCount[i] > 0) {
+                list.add(new Node((byte) i, byteCount[i]));
+            }
+        }
+
+        return list;
     }
 }
