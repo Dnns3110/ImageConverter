@@ -24,7 +24,58 @@ public class ImageConverter {
             } else if (argHandler.getWorkMode() == WorkMode.Decode) {
                 decodeFile(argHandler);
             } else {
-                convertFile(argHandler);
+                // Convert two (for tga) or three (for propra) times using all compression methods that exist,
+                // identify the smallest one and remove the other one(s)
+                if (argHandler.getWorkMode() == WorkMode.ConvertAuto) {
+                    String outExtension = argHandler.getOutFileExtension();
+                    File outFile = argHandler.getOutFile();
+                    File uncompressedOutFile = new File(outFile.getAbsolutePath() + "uncompressed." + outExtension);
+                    File rleOutFile = new File(outFile.getAbsolutePath() + "rle." + outExtension);
+                    File smallestFile;
+
+                    // Create uncompressed file.
+                    argHandler.setOutFile(uncompressedOutFile);
+                    argHandler.setWorkMode(WorkMode.ConvertUncompressed);
+                    convertFile(argHandler);
+                    System.out.println("");
+
+                    // Create rle compressed file.
+                    argHandler.setOutFile(rleOutFile);
+                    argHandler.setWorkMode(WorkMode.ConvertRLE);
+                    convertFile(argHandler);
+                    System.out.println("");
+
+                    if (uncompressedOutFile.length() < rleOutFile.length()) {
+                        smallestFile = uncompressedOutFile;
+                        rleOutFile.delete();
+                    } else {
+                        smallestFile = rleOutFile;
+                        uncompressedOutFile.delete();
+                    }
+
+                    // Create huffman compressed file (only for propra files.
+                    if (outFile.getAbsolutePath().endsWith("propra")) {
+                        File huffmanOutFile = new File(outFile.getAbsolutePath() + "huffman." + outExtension);
+                        argHandler.setOutFile(huffmanOutFile);
+                        argHandler.setWorkMode(WorkMode.ConvertHuffman);
+                        convertFile(argHandler);
+                        System.out.println();
+
+                        if (huffmanOutFile.length() < smallestFile.length()) {
+                            smallestFile.delete();
+                            smallestFile = huffmanOutFile;
+                        } else {
+                            huffmanOutFile.delete();
+                        }
+                    }
+
+                    System.out.println("Identified " + smallestFile.getName() + " as smallest file.");
+                    System.out.println("Rename " + smallestFile.getName() + " => " + outFile.getName());
+                    smallestFile.renameTo(outFile);
+
+                } else {
+                    convertFile(argHandler);
+                }
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -90,6 +141,7 @@ public class ImageConverter {
 
             outputDataSegmentSize = writer.getDataSegmentSize();
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Unexpected error occurred during conversion process:\n" + e.toString());
             System.exit(123);
         }
@@ -184,6 +236,7 @@ public class ImageConverter {
      * @return huffman tree.
      */
     public static Node buildTree(ArgumentHandler argHandler) {
+        System.out.println("Build Huffman Tree");
         int[] byteCount = new int[256];
 
         try (ImageReader reader = getReader(argHandler)) {
@@ -203,18 +256,6 @@ public class ImageConverter {
         }
 
         ArrayList<Node> nodeList = byteCountToNodeList(byteCount);
-//        ArrayList<Node> nodeList = new ArrayList<>();
-//
-//        nodeList.add(new Node((byte)42, 1337));
-//        nodeList.add(new Node((byte)5, 26));
-//        nodeList.add(new Node((byte)6, 30));
-//        nodeList.add(new Node((byte)2, 24));
-//        nodeList.add(new Node((byte)16, 23));
-//        nodeList.add(new Node((byte)23, 42));
-//        nodeList.add(new Node((byte)10, 15));
-//        nodeList.add(new Node((byte)7, 10));
-//        nodeList.add(new Node((byte)8, 12));
-
 
         while (nodeList.size() > 1) {
             Collections.sort(nodeList);
@@ -225,7 +266,14 @@ public class ImageConverter {
             nodeList.add(newNode);
         }
 
-        return nodeList.get(0);
+        Node tree = nodeList.get(0);
+
+        // Handle the case, that the tree consists of only 1 node.
+        if (tree.isLeave() && tree.isRoot()) {
+            return new Node(tree, new Node((byte) (tree.getSymbol() + 1), 1));
+        }
+
+        return tree;
     }
 
     /**

@@ -48,12 +48,30 @@ public class ArgumentHandler {
     }
 
     /**
-     * Get the Workmode identified from the given arguments.
+     * Set the path used for image conversion (usually used for auto compression).
+     *
+     * @param outFile
+     */
+    public void setOutFile(File outFile) {
+        this.outFile = outFile;
+    }
+
+    /**
+     * Get the WorkMode identified from the given arguments.
      *
      * @return workmode
      */
     public WorkMode getWorkMode() {
         return workMode;
+    }
+
+    /**
+     * Set the WorkMode used for running the image converter (usually used for auto compression).
+     *
+     * @param workMode
+     */
+    public void setWorkMode(WorkMode workMode) {
+        this.workMode = workMode;
     }
 
     /**
@@ -116,6 +134,7 @@ public class ArgumentHandler {
     public String getUsage() {
         return "Usage: \tImageConverter --input=<Path to input file> --output=<Path to output file> --compression=rle\n" +
                 "  or \tImageConverter --input=<Path to input file> --output=<Path to output file> --compression=uncompressed\n" +
+                "  or \tImageConverter --input=<Path to input file> --output=<Path to output file> --compression=auto\n" +
                 "  or \tImageConverter --input=<Path to input file> --output=<Path to output file in *.propra format> --compression=huffman\n" +
                 "  or \tImageConverter --input=<Path to input file> --encode-base-32\n" +
                 "  or \tImageConverter --input=<Path to input file> --decode-base-32\n" +
@@ -264,6 +283,9 @@ public class ArgumentHandler {
                 case "huffman":
                     this.workMode = WorkMode.ConvertHuffman;
                     break;
+                case "auto":
+                    this.workMode = WorkMode.ConvertAuto;
+                    break;
                 default:
                     String message = String.format("Unsupported compression used: %s\n%s", arg, this.getUsage());
                     throw new IllegalArgumentException(message);
@@ -276,7 +298,7 @@ public class ArgumentHandler {
     }
 
     /**
-     * Returns an error based an the already set work Mode, and the other work mode, that should have been set.
+     * Returns an error based on the already set work Mode, and the other work mode, that should have been set.
      *
      * @param newWorkMode work mode that should have been set.
      * @param arg         current processed argument
@@ -326,6 +348,7 @@ public class ArgumentHandler {
             case ConvertRLE:
             case ConvertUncompressed:
             case ConvertHuffman:
+            case ConvertAuto:
                 if (this.inFile == null) {
                     String message = String.format("No input file specified.\n%s", this.getUsage());
                     throw new IllegalArgumentException(message);
