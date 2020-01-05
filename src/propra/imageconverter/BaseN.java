@@ -27,6 +27,7 @@ public class BaseN {
      * This constructor is mainly used for base-n decoding, because during creation of the object,
      * the alphabet is not already present, and will be set later.
      *
+     * @param base32Hex define whether this encoding should be Base32 Hex encoding
      * @throws InvalidEncodingException if the length of the alphabet is not a power of two.
      */
     public BaseN(boolean base32Hex) throws InvalidEncodingException {
@@ -46,15 +47,6 @@ public class BaseN {
     }
 
     /**
-     * Returns the alphabet for en-/decoding.
-     *
-     * @return alphabet
-     */
-    public String getAlphabet() {
-        return alphabet;
-    }
-
-    /**
      * Constructs the default Base N Encoder, that encodes in base 32 hex
      * with alphabet <code>0123456789ABCDEFGHIJKLMNOPQRSTUV</code>.
      *
@@ -66,9 +58,20 @@ public class BaseN {
     }
 
     /**
+     * Returns the alphabet for en-/decoding.
+     *
+     * @return alphabet
+     */
+    public String getAlphabet() {
+        return alphabet;
+    }
+
+    /**
      * Sets the alphabet for en-/decoding.
      *
      * @param alphabet alphabet to be set.
+     * @throws InvalidEncodingException if the given alphabet has an inappropriate length
+     *                                  (length is not a power of two).
      */
     public void setAlphabet(String alphabet) throws InvalidEncodingException {
         if (!checkLength(alphabet.length())) {

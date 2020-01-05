@@ -50,7 +50,7 @@ public class ArgumentHandler {
     /**
      * Set the path used for image conversion (usually used for auto compression).
      *
-     * @param outFile
+     * @param outFile out file to be set afterwards (so far only used for auto compression).
      */
     public void setOutFile(File outFile) {
         this.outFile = outFile;
@@ -68,7 +68,7 @@ public class ArgumentHandler {
     /**
      * Set the WorkMode used for running the image converter (usually used for auto compression).
      *
-     * @param workMode
+     * @param workMode Work Mode to be set (so far only used for auto compression mode).
      */
     public void setWorkMode(WorkMode workMode) {
         this.workMode = workMode;
@@ -217,6 +217,7 @@ public class ArgumentHandler {
      * @param arg      String "--encode-base-32" or "--decode-base-32".
      * @param workMode work mode to be set
      * @throws IllegalArgumentException if encode/decode argument is used wrong.
+     * @throws InvalidEncodingException if the encoding to be set is invalid.
      */
     private void processEncodeDecodeBase32(String arg, WorkMode workMode) throws IllegalArgumentException, InvalidEncodingException {
         String[] splittedArgument = arg.split("=");
@@ -240,6 +241,7 @@ public class ArgumentHandler {
      * @param arg      String "--decode-base-n" or one that starts with "--encode-base-n=", followed by the alphabet.
      * @param workMode work mode to be set
      * @throws IllegalArgumentException if encode/decode argument is used wrong.
+     * @throws InvalidEncodingException if the encoding to be set is invalid.
      */
     private void processEncodeDecodeBaseN(String arg, WorkMode workMode) throws IllegalArgumentException, InvalidEncodingException {
         String[] splittedArgument = arg.split("=");

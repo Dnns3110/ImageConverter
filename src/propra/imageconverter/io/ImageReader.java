@@ -67,10 +67,10 @@ public abstract class ImageReader extends BufferedInputStream {
      *
      * @param header   image file header.
      * @param checksum checksum to get updated.
-     * @return
+     * @return pixel that represent the currently read row.
      * @throws IOException if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
      */
-    public Pixel[] readRow(ImageHeader header, Checksum checksum) throws IOException, InvalidImageException {
+    public Pixel[] readRow(ImageHeader header, Checksum checksum) throws IOException {
         if (header.getCompression() == Compression.Uncompressed) {
             return readUncompressedRow(header, checksum);
         } else if (header.getCompression() == Compression.RLE) {
@@ -86,7 +86,7 @@ public abstract class ImageReader extends BufferedInputStream {
      *
      * @param header   image file header.
      * @param checksum checksum to get updated.
-     * @return
+     * @return pixel that represent the currently read row.
      * @throws IOException if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
      */
     private Pixel[] readUncompressedRow(ImageHeader header, Checksum checksum) throws IOException {

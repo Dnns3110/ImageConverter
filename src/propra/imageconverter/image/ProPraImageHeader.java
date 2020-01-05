@@ -50,6 +50,7 @@ public class ProPraImageHeader extends ImageHeader {
      * @param compression     compression type field from image file header.
      * @param dataSegmentSize size of data segment.
      * @param checksum        checksum of pixel data.
+     * @param tree            huffman tree.
      * @throws InvalidImageException if image header is invalid.
      */
     public ProPraImageHeader(String magic, short imgWidth, short imgHeight, byte pixelDepth, Compression compression,
@@ -97,7 +98,7 @@ public class ProPraImageHeader extends ImageHeader {
      * Returns Huffman Tree. This is actually not a part of the header itself,
      * but it is easier to store the tree in header.
      *
-     * @return
+     * @return huffman tree.
      */
     public Node getHuffmanTree() {
         return huffmanTree;
@@ -144,8 +145,10 @@ public class ProPraImageHeader extends ImageHeader {
     /**
      * Calculates checksum from image data.
      *
-     * @param checksum calculated checksum, that should get verified against the checksum in header.
-     * @throws InvalidImageException if the calculated checksum mismachts the checksum from header.
+     * @param checksum        calculated checksum, that should get verified against the checksum in header.
+     * @param dataSegmentSize number of bytes read from the data segment of the file.
+     * @throws InvalidImageException if the calculated checksum mismatches the checksum from header
+     *                               or the read data segment size does not math the data segment size from file header.
      */
     public void reValidateHeader(Checksum checksum, long dataSegmentSize) throws InvalidImageException {
         if (this.getChecksum() != checksum.getChecksum()) {

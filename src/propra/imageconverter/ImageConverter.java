@@ -233,6 +233,7 @@ public class ImageConverter {
     /**
      * Reads the input File once to build the huffman tree.
      *
+     * @param argHandler ArgumentHandler, that contains both paths to input and output file.
      * @return huffman tree.
      */
     public static Node buildTree(ArgumentHandler argHandler) {
@@ -313,6 +314,8 @@ public class ImageConverter {
      *
      * @param inputHeader header from input file.
      * @param argHandler  ArgumentHandler, that contains both paths to input and output file.
+     * @param tree        Huffman tree for output header (in case of conversion to huffman compressed propra file.
+     *                    Otherwise this is <code>null</code>
      * @return output header.
      * @throws InvalidImageException if constructed output header is invalid.
      */

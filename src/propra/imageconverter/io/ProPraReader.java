@@ -127,8 +127,9 @@ public class ProPraReader extends ImageReader {
      *
      * @param tree     huffman tree.
      * @param checksum checksum to get updated.
-     * @throws IOException if this input stream has been closed by invoking its {@link #close()} method,
-     *                     or an I/O error occurs.
+     * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method,
+     *                               or an I/O error occurs.
+     * @throws InvalidImageException if the tree is incomplete (the file does not contain a full huffman tree
      */
     public void readTree(Node tree, Checksum checksum) throws IOException, InvalidImageException {
         Node currentNode = tree;

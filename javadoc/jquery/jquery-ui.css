@@ -353,10 +353,12 @@ a.ui-button:active,
 .ui-button .ui-state-highlight.ui-icon {
     background-image: url("images/ui-icons_2e83ff_256x240.png");
 }
+
 .ui-state-error .ui-icon,
 .ui-state-error-text .ui-icon {
     background-image: url("images/ui-icons_cd0a0a_256x240.png");
 }
+
 .ui-button .ui-icon {
     background-image: url("images/ui-icons_888888_256x240.png");
 }
@@ -909,6 +911,7 @@ a.ui-button:active,
 .ui-icon-seek-start {
     background-position: -80px -160px;
 }
+
 /* ui-icon-seek-first is deprecated, use ui-icon-seek-start instead */
 .ui-icon-seek-first {
     background-position: -80px -160px;
