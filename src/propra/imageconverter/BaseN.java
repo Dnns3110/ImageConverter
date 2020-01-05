@@ -8,6 +8,9 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.HashMap;
 
+/**
+ * Handles BaseN (and especially Base32 Hex) encoding.
+ */
 public class BaseN {
 
     /**

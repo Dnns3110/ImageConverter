@@ -5,8 +5,19 @@ package propra.imageconverter.image;
  */
 public class Pixel {
 
+    /**
+     * red part of the Pixel.
+     */
     private byte r;
+
+    /**
+     * green part of the Pixel.
+     */
     private byte g;
+
+    /**
+     * blue part of the Pixel.
+     */
     private byte b;
 
     /**
@@ -37,6 +48,7 @@ public class Pixel {
 
     /**
      * Returns the pixel as byte array in a specified pixel order.
+     *
      * @param pixelOrder order of the colors in the byte array.
      * @return bytes representing pixel.
      */
@@ -53,6 +65,7 @@ public class Pixel {
 
     /**
      * Compares this pixel to an object.
+     *
      * @param obj object to be compared to.
      * @return true, if r, g and b value of the given object is equal to the values of this pixel.
      */

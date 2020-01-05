@@ -28,6 +28,7 @@ public class RawPacket implements Packet {
 
     /**
      * Adds a pixel to the packet.
+     *
      * @param pixel pixel to be added.
      */
     @Override
@@ -37,6 +38,7 @@ public class RawPacket implements Packet {
 
     /**
      * Returns size of the packet.
+     *
      * @return packetSize.
      */
     @Override
@@ -46,6 +48,7 @@ public class RawPacket implements Packet {
 
     /**
      * Converts the packet into a byte array to be written to a file.
+     *
      * @param po Pixel Order used to convert Pixel to byte array.
      * @return byte array representing the packet.
      */
@@ -64,6 +67,7 @@ public class RawPacket implements Packet {
 
     /**
      * Returns the last pixel that got added to the packet.
+     *
      * @return last added pixel.
      */
     @Override

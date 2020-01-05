@@ -23,7 +23,7 @@ public class ArgumentHandler {
      * Constructs an Argument Handler that validates commandline arguments passed to the program.
      *
      * @param args Commandline arguments passed to the program.
-     * @throws IllegalArgumentException If passed arguments are invalid.
+     * @throws Exception If passed arguments are invalid.
      */
     public ArgumentHandler(String[] args) throws Exception {
         this.processArgs(args);
@@ -337,7 +337,7 @@ public class ArgumentHandler {
     }
 
     /**
-     * Validate given input files based on the identified work mode.
+     * Validate given input and output file based on the identified work mode.
      *
      * @throws IllegalArgumentException if the files are not specified correctly for the chosen work mode.
      */

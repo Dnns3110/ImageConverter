@@ -22,6 +22,14 @@ public class ProPraReader extends ImageReader {
      */
     private boolean eof = false;
 
+    /**
+     * Creates a <code>ProPraReader</code>
+     * and saves its  argument, the input stream
+     * <code>in</code>, for later use. An internal
+     * buffer array is created and  stored in <code>buf</code>.
+     *
+     * @param in the underlying input stream.
+     */
     public ProPraReader(InputStream in) {
         super(in);
     }
@@ -106,7 +114,9 @@ public class ProPraReader extends ImageReader {
      * @param header   image file header.
      * @param checksum checksum to get updated.
      * @return row of pixels.
-     * @throws IOException if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
+     * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method,
+     *                               or an I/O error occurs.
+     * @throws InvalidImageException if the tree is incomplete (the file does not contain a full huffman tree.
      */
     @Override
     public Pixel[] readRow(ImageHeader header, Checksum checksum) throws IOException, InvalidImageException {
@@ -129,7 +139,7 @@ public class ProPraReader extends ImageReader {
      * @param checksum checksum to get updated.
      * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method,
      *                               or an I/O error occurs.
-     * @throws InvalidImageException if the tree is incomplete (the file does not contain a full huffman tree
+     * @throws InvalidImageException if the tree is incomplete (the file does not contain a full huffman tree.
      */
     public void readTree(Node tree, Checksum checksum) throws IOException, InvalidImageException {
         Node currentNode = tree;
@@ -188,7 +198,16 @@ public class ProPraReader extends ImageReader {
         return null;
     }
 
-
+    /**
+     * Read a huffman compressed row of pixels.
+     *
+     * @param header   header from input file.
+     * @param tree     huffman tree.
+     * @param checksum checksum to get updated.
+     * @return row of pixels.
+     * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
+     * @throws InvalidImageException if there is less data to read, than expected.
+     */
     private Pixel[] readHuffmanRow(ImageHeader header, Node tree, Checksum checksum) throws IOException, InvalidImageException {
         Pixel[] row = new Pixel[header.getImgWidth()];
 
@@ -199,7 +218,16 @@ public class ProPraReader extends ImageReader {
         return row;
     }
 
-
+    /**
+     * Read a pixel from file.
+     *
+     * @param header   header from input file.
+     * @param tree     huffman tree.
+     * @param checksum checksum to get updated.
+     * @return a pixel read from input file.
+     * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
+     * @throws InvalidImageException if there is less data to read, than expected.
+     */
     private Pixel getPixel(ImageHeader header, Node tree, Checksum checksum) throws IOException, InvalidImageException {
         byte[] pixelBytes = new byte[header.getPixelDepth() / 8];
 
@@ -210,7 +238,15 @@ public class ProPraReader extends ImageReader {
         return new Pixel(pixelBytes, header.getPixelOrder());
     }
 
-
+    /**
+     * Get one byte that represents a color (huffman compressed) from a pixel.
+     *
+     * @param tree     huffman tree.
+     * @param checksum checksum to get updated.
+     * @return a byte that represents a color from a pixel.
+     * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
+     * @throws InvalidImageException if there is less data to read, than expected.
+     */
     private byte getByte(Node tree, Checksum checksum) throws IOException, InvalidImageException {
         Node currentNode = tree;
 

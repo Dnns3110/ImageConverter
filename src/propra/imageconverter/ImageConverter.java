@@ -353,6 +353,12 @@ public class ImageConverter {
         }
     }
 
+    /**
+     * Converts the byteCount array into an ArrayList of Nodes, that only contains nodes with a weight.
+     *
+     * @param byteCount array to be converted.
+     * @return ArrayList of Nodes.
+     */
     public static ArrayList<Node> byteCountToNodeList(int[] byteCount) {
         ArrayList<Node> list = new ArrayList<>();
 

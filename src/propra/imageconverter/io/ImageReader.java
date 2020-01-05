@@ -18,6 +18,14 @@ public abstract class ImageReader extends BufferedInputStream {
      */
     private long dataSegmentSize = 0;
 
+    /**
+     * Creates an <code>ImageReader</code>
+     * and saves its  argument, the input stream
+     * <code>in</code>, for later use. An internal
+     * buffer array is created and  stored in <code>buf</code>.
+     *
+     * @param in the underlying input stream.
+     */
     public ImageReader(InputStream in) {
         super(in);
     }
@@ -68,9 +76,10 @@ public abstract class ImageReader extends BufferedInputStream {
      * @param header   image file header.
      * @param checksum checksum to get updated.
      * @return pixel that represent the currently read row.
-     * @throws IOException if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
+     * @throws IOException           if this input stream has been closed by invoking its {@link #close()} method, or an I/O error occurs.
+     * @throws InvalidImageException if the tree is incomplete (the file does not contain a full huffman tree.
      */
-    public Pixel[] readRow(ImageHeader header, Checksum checksum) throws IOException {
+    public Pixel[] readRow(ImageHeader header, Checksum checksum) throws IOException, InvalidImageException {
         if (header.getCompression() == Compression.Uncompressed) {
             return readUncompressedRow(header, checksum);
         } else if (header.getCompression() == Compression.RLE) {

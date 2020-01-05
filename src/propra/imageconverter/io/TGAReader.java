@@ -14,7 +14,14 @@ import java.io.InputStream;
  */
 public class TGAReader extends ImageReader {
 
-
+    /**
+     * Creates a <code>TGAReader</code>
+     * and saves its  argument, the input stream
+     * <code>in</code>, for later use. An internal
+     * buffer array is created and  stored in <code>buf</code>.
+     *
+     * @param in the underlying input stream.
+     */
     public TGAReader(InputStream in) {
         super(in);
     }

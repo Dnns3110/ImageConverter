@@ -17,12 +17,14 @@ public interface Packet {
 
     /**
      * Returns size of the packet.
+     *
      * @return packetSize.
      */
     int packetSize();
 
     /**
      * Converts the packet into a byte array to be written to a file.
+     *
      * @param po Pixel Order used to convert Pixel to byte array.
      * @return byte array representing the packet.
      */
@@ -30,6 +32,7 @@ public interface Packet {
 
     /**
      * Returns the last pixel that got added to the packet.
+     *
      * @return last added pixel.
      */
     Pixel lastPixel();

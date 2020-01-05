@@ -14,8 +14,15 @@ import java.util.HashMap;
  */
 public class ProPraImageHeader extends ImageHeader {
 
+    /**
+     * Header size of a ProPra image.
+     */
     public static final int HEADER_SIZE = 28;
-    public static PixelOrder PIXEL_ORDER = PixelOrder.GBR;
+
+    /**
+     * Order of colors in a pixel, how they are stored in a ProPra image file.
+     */
+    public static final PixelOrder PIXEL_ORDER = PixelOrder.GBR;
 
     /**
      * Magic String a ProPra image starts with.
@@ -33,10 +40,13 @@ public class ProPraImageHeader extends ImageHeader {
     private int checksum;
 
     /**
-     * Huffman Tree.
+     * Huffman tree.
      */
     private Node huffmanTree;
 
+    /**
+     * Huffman table.
+     */
     private HashMap<Byte, String> huffmanTable;
 
     /**
@@ -104,10 +114,20 @@ public class ProPraImageHeader extends ImageHeader {
         return huffmanTree;
     }
 
+    /**
+     * Get the huffman table for the curren ProPra Image.
+     *
+     * @return huffman table.
+     */
     public HashMap<Byte, String> getHuffmanTable() {
         return huffmanTable;
     }
 
+    /**
+     * Set the huffman table generated in the ProPra header, to generate the table only once.
+     *
+     * @param huffmanTable huffman table to be stored.
+     */
     public void setHuffmanTable(HashMap<Byte, String> huffmanTable) {
         this.huffmanTable = huffmanTable;
     }

@@ -12,8 +12,8 @@ public class ByteHandler {
     /**
      * Converts a byte array, starting at offset, into a short with byte order Little Endian.
      *
-     * @param bytes     byte array to be converted.
-     * @param offset    start at offset.
+     * @param bytes  byte array to be converted.
+     * @param offset start at offset.
      * @return short represented by given byte array, starting at offset.
      */
     public static short byteArrayToShort(byte[] bytes, int offset) {
@@ -41,8 +41,8 @@ public class ByteHandler {
     /**
      * Converts a byte array, starting at offset, into an int with byte order Little Endian.
      *
-     * @param bytes     byte array to be converted.
-     * @param offset    start at offset.
+     * @param bytes  byte array to be converted.
+     * @param offset start at offset.
      * @return int represented by given byte array, starting at offset.
      */
     public static int byteArrayToInt(byte[] bytes, int offset) {
@@ -67,12 +67,11 @@ public class ByteHandler {
         return buf.getInt();
     }
 
-
     /**
      * Converts a byte array, starting at offset, into a long with byte order Little Endian.
      *
-     * @param bytes     byte array to be converted.
-     * @param offset    start at offset.
+     * @param bytes  byte array to be converted.
+     * @param offset start at offset.
      * @return long represented by given byte array, starting at offset.
      */
     public static long byteArrayToLong(byte[] bytes, int offset) {
@@ -100,7 +99,7 @@ public class ByteHandler {
     /**
      * Converts a short into a byte array with byte order Little Endian.
      *
-     * @param s         short to be converted.
+     * @param s short to be converted.
      * @return byte array that represents the passed short.
      */
     public static byte[] shortToByteArray(short s) {
@@ -117,11 +116,9 @@ public class ByteHandler {
     public static byte[] shortToByteArray(short s, ByteOrder byteOrder) {
         int len = Short.BYTES;
         ByteBuffer buf = ByteBuffer.allocate(len);
-        buf.putShort(s);
 
-        if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-            return reverseArray(buf.array());
-        }
+        buf.order(byteOrder);
+        buf.putShort(s);
 
         return buf.array();
     }
@@ -129,7 +126,7 @@ public class ByteHandler {
     /**
      * Converts an int into a byte array with byte order Little Endian.
      *
-     * @param i         short to be converted.
+     * @param i short to be converted.
      * @return byte array that represents the passed int.
      */
     public static byte[] intToByteArray(int i) {
@@ -146,11 +143,9 @@ public class ByteHandler {
     public static byte[] intToByteArray(int i, ByteOrder byteOrder) {
         int len = Integer.BYTES;
         ByteBuffer buf = ByteBuffer.allocate(len);
-        buf.putInt(i);
 
-        if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-            return reverseArray(buf.array());
-        }
+        buf.order(byteOrder);
+        buf.putInt(i);
 
         return buf.array();
     }
@@ -175,28 +170,10 @@ public class ByteHandler {
     public static byte[] longToByteArray(long l, ByteOrder byteOrder) {
         int len = Long.BYTES;
         ByteBuffer buf = ByteBuffer.allocate(len);
+
+        buf.order(byteOrder);
         buf.putLong(l);
 
-        if (byteOrder == ByteOrder.LITTLE_ENDIAN) {
-            return reverseArray(buf.array());
-        }
-
         return buf.array();
-    }
-
-    /**
-     * Reverse the order of bytes in given byte array.
-     *
-     * @param bytes bytes to be reversed.
-     * @return byte array in reversed order.
-     */
-    public static byte[] reverseArray(byte[] bytes) {
-        byte[] reversed = new byte[bytes.length];
-
-        for (int i = 0; i < bytes.length; i++) {
-            reversed[i] = bytes[bytes.length - i - 1];
-        }
-
-        return reversed;
     }
 }

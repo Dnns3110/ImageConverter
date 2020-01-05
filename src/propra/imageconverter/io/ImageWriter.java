@@ -18,6 +18,12 @@ public class ImageWriter extends BufferedOutputStream {
      */
     private long dataSegmentSize = 0;
 
+    /**
+     * Creates a new image writer to write data to the
+     * specified underlying output stream.
+     *
+     * @param out the underlying output stream.
+     */
     public ImageWriter(OutputStream out) {
         super(out);
     }
@@ -39,7 +45,6 @@ public class ImageWriter extends BufferedOutputStream {
     public void incrementDataSegmentSize(long increment) {
         this.dataSegmentSize += increment;
     }
-
 
     /**
      * Writes a row of pixels into the output file in uncompressed or rle compressed format.

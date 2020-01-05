@@ -10,14 +10,20 @@ import java.nio.ByteBuffer;
  */
 public class TGAImageHeader extends ImageHeader {
 
+    /**
+     * Header size of a TGA image.
+     */
     public static final int HEADER_SIZE = 18;
+
+    /**
+     * Order of colors in a pixel, how they are stored in a TGA image file.
+     */
     public static PixelOrder PIXEL_ORDER = PixelOrder.BGR;
 
     /**
      * Image type field from image file header.
      */
     private byte imageType;
-
 
     /**
      * X Origin field from image file header.
